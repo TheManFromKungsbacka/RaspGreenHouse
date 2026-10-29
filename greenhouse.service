@@ -1,0 +1,30 @@
+# greenhouse.service - makes Linux (systemd) run greenhouse.py all the time.
+#
+# systemd starts the program when the Pi boots, and restarts it 30 seconds
+# after a crash. Install once with:
+#
+#   sudo cp greenhouse.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now greenhouse
+#
+# Everyday commands:
+#   systemctl status greenhouse          is it running?
+#   sudo systemctl stop greenhouse       stop it (all relays off), e.g. before
+#                                        running the test scripts
+#   sudo systemctl start greenhouse      start it again
+#   journalctl -u greenhouse -f          watch what it does live
+
+[Unit]
+Description=Greenhouse daily program (light, fan, watering, photo)
+# Start after the clock is synced, so the schedule uses the right time.
+After=time-sync.target network.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/Greenhouse/Rasp
+ExecStart=/usr/bin/python3 -u /home/pi/Greenhouse/Rasp/greenhouse.py
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

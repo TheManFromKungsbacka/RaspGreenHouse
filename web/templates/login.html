@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Greenhouse – log in</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+{# ----- learn -----
+   A plain HTML form. When you press the button the browser sends the three
+   named fields (csrf, username, password) to the address in `action` using
+   method="post"; app.py's login() function receives them via request.form.
+   The hidden "csrf" field is the secret token (see check_csrf in app.py).
+   `required` and `autocomplete` are only hints for the browser - the server
+   still checks everything itself, because anyone can bypass a browser's checks.
+   ----- end learn ----- #}
+<body class="login-page">
+  <form class="card login" method="post" action="{{ url_for('login') }}">
+    <h1>Greenhouse</h1>
+    <p class="muted">Log in to switch the light, fan and pump.</p>
+    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label>Username
+      <input name="username" autocomplete="username" required autofocus>
+    </label>
+    <label>Password
+      <input name="password" type="password" autocomplete="current-password" required>
+    </label>
+    <button class="btn btn-primary" type="submit">Log in</button>
+    <a class="muted small" href="{{ url_for('index') }}">← Back to the overview</a>
+  </form>
+</body>
+</html>

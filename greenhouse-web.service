@@ -1,0 +1,34 @@
+# greenhouse-web.service - keeps the greenhouse web page (web/app.py) running.
+#
+# Install once with:
+#   sudo cp greenhouse-web.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now greenhouse-web
+#
+# Then open http://<pi-ip>:8080 on the home network.
+#   sudo systemctl restart greenhouse-web   after changing the password or the code
+#   journalctl -u greenhouse-web -f         watch its output live
+
+[Unit]
+Description=Greenhouse web page
+After=network.target
+
+[Service]
+# Runs as the normal pi user, never as root. The web page needs no GPIO
+# access: it only reads and writes the shared files (see statefiles.py).
+User=pi
+WorkingDirectory=/home/pi/Greenhouse/Rasp
+ExecStart=/usr/bin/python3 -u /home/pi/Greenhouse/Rasp/web/app.py
+Restart=always
+RestartSec=10
+
+# Extra walls around the process, in case the web page is ever broken into:
+# it cannot gain new privileges or change system files, and only the project
+# folder (shared files, logs) is writable.
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/home/pi/Greenhouse/Rasp
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

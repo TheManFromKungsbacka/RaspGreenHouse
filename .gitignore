@@ -1,0 +1,22 @@
+# Python's compiled files - created automatically, never commit them
+__pycache__/
+*.pyc
+
+# Photos can get large; keep them on the Pi, not in Git
+photos/
+
+# Log and data files created while running
+*.log
+
+# Daily program memory (what was done today) - belongs to this Pi only
+state.json
+logs/
+
+# Runtime files shared by greenhouse.py and the web page
+status.json
+overrides.json
+pump_request.json
+*.tmp
+
+# Login secrets - NEVER commit
+web_auth.json

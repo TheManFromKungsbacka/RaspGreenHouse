@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The CSRF token: app.js sends it back with every button press. -->
+  <meta name="csrf-token" content="{{ csrf }}">
+  <title>Greenhouse</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+{# ----- learn -----
+   This file is a TEMPLATE. Before sending it, Flask (Jinja2) replaces
+   {{ something }} with a value from app.py's render_template(...) call, and
+   runs {% if %} ... {% endif %} to include or skip parts. {{ user }} is the
+   logged-in name, so the "Log out" button only exists for logged-in people.
+   The browser only ever sees the finished HTML. Notice the page is mostly an
+   empty skeleton (ids like "sensors" and "outputs"): app.js fills it in with
+   live data, so the HTML does not have to change every few seconds.
+   This block is a Jinja comment, so it is removed before the page is sent.
+   ----- end learn ----- #}
+<body data-logged-in="{{ 'yes' if user else 'no' }}">
+  <header class="top">
+    <div class="brand">
+      <h1>Greenhouse</h1>
+      <span id="run-status" class="pill pill-muted">Loading…</span>
+      <span id="updated" class="muted"></span>
+    </div>
+    <div class="account">
+      {% if user %}
+        <span class="muted">Signed in as <strong>{{ user }}</strong></span>
+        <form method="post" action="{{ url_for('logout') }}">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <button class="btn btn-quiet" type="submit">Log out</button>
+        </form>
+      {% else %}
+        <a class="btn" href="{{ url_for('login') }}">Log in to control</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>Sensors</h2>
+      <div class="grid" id="sensors">
+        <article class="card" id="temp-card">
+          <h3>Temperature</h3>
+          <p class="big"><span id="temp-value">–</span><span class="unit">°C</span></p>
+          <p class="muted" id="temp-note"></p>
+        </article>
+        <!-- Moisture cards are added by app.js, one per sensor in config.py. -->
+      </div>
+    </section>
+
+    <section>
+      <h2>Outputs</h2>
+      <div class="grid" id="outputs"><!-- filled by app.js --></div>
+      {% if not user %}
+        <p class="muted small">Manual control needs a login.</p>
+      {% endif %}
+    </section>
+
+    <section class="two-col">
+      <div>
+        <h2>Schedule</h2>
+        <dl class="card schedule" id="schedule"></dl>
+      </div>
+      <div>
+        <h2>Latest photo</h2>
+        <figure class="card photo">
+          <img id="photo" alt="Latest photo of the greenhouse" hidden>
+          <figcaption id="photo-caption" class="muted">No photo yet</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <h2>Recent events</h2>
+      <ol class="card events" id="events"></ol>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
