@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Raspberry Pi Greenhouse</title>
+  <meta name="description" content="A Raspberry Pi that runs a small herb greenhouse: grow light, fan, scheduled watering, daily photo and a secure web page.">
+  <style>
+    /* Colours are defined once and redefined for dark mode, like the greenhouse page itself. */
+    :root {
+      --bg: #f4f6f2; --card: #ffffff; --text: #1d2a1f; --muted: #5f6d62;
+      --border: #dde3da; --accent: #2f7d3b; --accent-text: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121612; --card: #1b211c; --text: #e4ebe4; --muted: #9aa79c;
+        --border: #2c352d; --accent: #5cb86a; --accent-text: #0d1a0f;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 56px; }
+    header { padding: 48px 0 8px; }
+    h1 { font-size: 2.2rem; line-height: 1.15; margin: 0 0 8px; }
+    h2 { font-size: 1.3rem; margin: 40px 0 10px; }
+    p { margin: 0 0 14px; }
+    a { color: var(--accent); }
+    .lead { font-size: 1.15rem; color: var(--muted); }
+    .btn {
+      display: inline-block; padding: 10px 20px; border-radius: 8px; font-weight: 600;
+      background: var(--accent); color: var(--accent-text); text-decoration: none;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px;
+    }
+    .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .grid h3 { font-size: 1rem; margin: 0 0 4px; }
+    .grid p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    ul { padding-left: 20px; margin: 0 0 14px; }
+    li { margin-bottom: 4px; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; }
+    figure { margin: 0; }
+    figure img { width: 100%; height: auto; border-radius: 8px; display: block; }
+    figcaption { color: var(--muted); font-size: 0.9rem; margin-top: 6px; }
+    footer { margin-top: 48px; color: var(--muted); font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Raspberry Pi Greenhouse</h1>
+      <p class="lead">A Raspberry Pi 3 that looks after a small herb greenhouse: it runs the grow light and the fan, waters the plants on a schedule, takes a photo every day, and shows everything on its own web page.</p>
+      <p><a class="btn" href="https://github.com/TheManFromKungsbacka/RaspGreenHouse">View the code on GitHub</a></p>
+    </header>
+
+    <h2>What it does</h2>
+    <div class="grid">
+      <div class="card"><h3>Grow light</h3><p>On from 06:00 to 20:00, so herbs get a long day even in autumn and winter.</p></div>
+      <div class="card"><h3>Fan</h3><p>Cools when it gets hot, and runs a few minutes every hour to keep the air moving.</p></div>
+      <div class="card"><h3>Watering</h3><p>A small pump runs for a set time each morning. A time limit in the code stops it from ever running too long.</p></div>
+      <div class="card"><h3>Camera</h3><p>One photo a day, so you can follow the plants' growth over weeks.</p></div>
+    </div>
+
+    <h2>Hardware</h2>
+    <div class="card">
+      <table>
+        <tr><th>Part</th><th>Used for</th></tr>
+        <tr><td>Raspberry Pi 3</td><td>The brain</td></tr>
+        <tr><td>DS18B20 sensor</td><td>Temperature</td></tr>
+        <tr><td>Soil moisture sensors + MCP3008 chip</td><td>Moisture (shown for information)</td></tr>
+        <tr><td>Relay board</td><td>Switches the light, pump and fan</td></tr>
+        <tr><td>Pi camera module</td><td>Daily photo</td></tr>
+      </table>
+    </div>
+
+    <!-- PICTURES: put image files in docs/images/ and remove the comment markers below.
+    <h2>Pictures</h2>
+    <div class="grid">
+      <figure class="card"><img src="images/web-page.png" alt="The greenhouse web page"><figcaption>The web page</figcaption></figure>
+      <figure class="card"><img src="images/setup.jpg" alt="The greenhouse setup"><figcaption>The setup</figcaption></figure>
+    </div>
+    -->
+
+    <h2>How it is built</h2>
+    <p>Only one program, <code>greenhouse.py</code>, ever touches the hardware. The web page never switches anything itself: it leaves a request in a small file, and <code>greenhouse.py</code> carries it out within its own safety limits. That keeps the safety rules in one place and means the web page needs no access to the pins at all.</p>
+    <ul>
+      <li>Python 3, running as two <code>systemd</code> services that start at boot and restart after a crash.</li>
+      <li>The web page is built with Flask and served by Waitress, with login, lock-out after wrong passwords and protection against forged requests.</li>
+      <li>Remote access goes through a private ZeroTier network, so the page is never open to the internet.</li>
+    </ul>
+    <p>The repository also contains <a href="https://github.com/TheManFromKungsbacka/RaspGreenHouse/blob/main/LEARN.md">LEARN.md</a>, a beginner-friendly walk through every file and why it is built the way it is.</p>
+
+    <footer>
+      <p>Built by <a href="https://github.com/TheManFromKungsbacka">TheManFromKungsbacka</a> with help from Claude. Source on <a href="https://github.com/TheManFromKungsbacka/RaspGreenHouse">GitHub</a>.</p>
+    </footer>
+  </div>
+</body>
+</html>
